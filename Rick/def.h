@@ -163,9 +163,6 @@ void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
 			}
 			else {
 				if (event.type == event.MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
-
-				//}
-				//if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 					posPortalX = cursor.getPosition().x;
 					posPortalY = cursor.getPosition().y;
 				}

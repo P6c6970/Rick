@@ -31,16 +31,16 @@ public:
 	void updateFrame(short temp1, short temp2) {
 		switch (temp1)
 		{
-		case 0://вниз
+		case 0://down
 			heroSprite.setTextureRect(sf::IntRect(((x + 5) * temp2), 0, x, y));
 			break;
-		case 1://влево
+		case 1://left
 			heroSprite.setTextureRect(sf::IntRect(((x + 5) * temp2), 166, x, y));
 			break;
-		case 2://вправо
+		case 2://right
 			heroSprite.setTextureRect(sf::IntRect(((x + 5) * temp2) + 124, 166, -x, y));
 			break;
-		case 3://вверх
+		case 3://up
 			heroSprite.setTextureRect(sf::IntRect(((x + 5) * temp2), 332, x, y));
 			break;
 		}
@@ -55,7 +55,7 @@ public:
 		heroSprite.setPosition(x, y);
 	}
 
-	short check(Map &map, float x, float y) {//проверяем новую координату на наличие чего-то например стены
+	short check(Map &map, float x, float y) {//checking the new coordinate
 		for (int i = (heroSprite.getPosition().x + x) / 45; i < (heroSprite.getPosition().x + x + this->x) / 45; i++)
 		{
 			for (int j = (heroSprite.getPosition().y + y) / 45; j < (heroSprite.getPosition().y + y + this->y) / 45; j++)
@@ -90,60 +90,38 @@ public:
 
 	//a.y < b.y1 || a.y1 > b.y || a.x1 < b.x || a.x > b.x1
 	void checkPortal(Map &map, short direction) {
-		if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768) {//если оба портала стоят
+		if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768) {//if both portals are standing
 			for (int i = 0; i < 2; i++)
 			{
-				//если косаемся портала
+				//if we tought the portals
 				if ((portal.position[i][0] < heroSprite.getPosition().x + x) && (portal.position[i][0] + portal.x > heroSprite.getPosition().x) && (portal.position[i][1] < heroSprite.getPosition().y + y) && (portal.position[i][1] + portal.y > heroSprite.getPosition().y)) {
-					//0 верх 1 низ 2 лево 3 право
-					//bool temp = false;
 					switch (direction)
 					{
-					case 0:
+					case 0://up
 						if (check(map, portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] - y - 1 - heroSprite.getPosition().y) == 0) {
 							if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768)
 								heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0, portal.position[(i + 1) % 2][1] - y - 1);
-							//temp = true;
 						}
 						break;
-					case 1:
+					case 1://down
 						if (check(map, portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y + 1 - heroSprite.getPosition().y) == 0) {
 							if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768)
 								heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0, portal.position[(i + 1) % 2][1] + portal.y + 1);
-							//temp = true;
 						}
 						break;
-					case 2:
+					case 2://left
 						if (check(map, portal.position[(i + 1) % 2][0] - 1 - x - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0 - heroSprite.getPosition().y) == 0) {
 							if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768)
 								heroSprite.setPosition(portal.position[(i + 1) % 2][0] - 1 - x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0);
-							//temp = true;
 						}
 						break;
-					case 3:
+					case 3://right
 						if (check(map, portal.position[(i + 1) % 2][0] + portal.x + 1 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0 - heroSprite.getPosition().y) == 0) {
 							if (portal.position[0][0] != -32768 && portal.position[1][0] != -32768)
 								heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x + 1, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0);
-							//temp = true;
 						}
 						break;
 					}
-					/*
-					if (!temp) {
-						if (direction != 0 && check(map, portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y + 1 - heroSprite.getPosition().y) == 0) {
-							heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0, portal.position[(i + 1) % 2][1] + portal.y + 1);
-						}
-						else if (direction != 1 && check(map, portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] - y - 1 - heroSprite.getPosition().y) == 0) {
-							heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x / 2.0 - x / 2.0, portal.position[(i + 1) % 2][1] - y - 1);
-						}
-						else if (direction != 3 && check(map, portal.position[(i + 1) % 2][0] + portal.x + 1 - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0 - heroSprite.getPosition().y) == 0) {
-							heroSprite.setPosition(portal.position[(i + 1) % 2][0] + portal.x + 1, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0);
-						}
-						else if (direction != 2 && check(map, portal.position[(i + 1) % 2][0] - 1 - x - heroSprite.getPosition().x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0 - heroSprite.getPosition().y) == 0){
-							heroSprite.setPosition(portal.position[(i + 1) % 2][0] - 1 - x, portal.position[(i + 1) % 2][1] + portal.y / 2.0 - y / 2.0);
-						}
-					}
-					*/
 					break;
 				}
 			}

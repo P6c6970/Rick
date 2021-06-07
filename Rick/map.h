@@ -55,8 +55,6 @@ public:
 };
 
 
-//2 390              47
-//581 406         626
 sf::Texture fonTexture;
 sf::Sprite fonSprite(fonTexture);
 void startFon(sf::RenderWindow &window) {
