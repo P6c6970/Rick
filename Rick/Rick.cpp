@@ -1,6 +1,4 @@
-﻿//#include "SFML/Audio.hpp"
-
-//#include <Windows.h>//для сворачивания окна
+﻿//#include <Windows.h>//для сворачивания окна
 //#include <iostream>
 #include "def.h"
 

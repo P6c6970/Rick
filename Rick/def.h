@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 
 #include "map.h"//карта
 #include "hero.h"//игрок и портал
@@ -598,10 +599,12 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 
 	std::ifstream fin;
 	std::string line = "1";
+	std::string musStatus = "1";
 	fin.open("settings.txt");
 	if (fin.is_open()) {// если файл открыт
 		getline(fin, line);// считали строку из файла
 		getline(fin, line);// считали строку из файла
+		getline(fin, musStatus);// считали строку из файла
 	}
 	fin.close();
 	Player hero;
@@ -701,7 +704,8 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 				textM.setFillColor(sf::Color::Black);
 				std::ofstream out("settings.txt");
 				out << "1.1" << std::endl;
-				out << line;
+				out << line << std::endl;
+				out << musStatus;
 				out.close();
 			}
 			textM.setCharacterSize(54);//увеличели кегль
@@ -849,6 +853,37 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 		fonTexture.create(1024, 768);
 	}
 	sf::Sprite fon(fonTexture);
+	
+	std::ifstream fin;
+	std::string line = "1";
+	fin.open("settings.txt");
+	if (fin.is_open()) {// если файл открыт
+		getline(fin, line);// считали строку из файла
+		getline(fin, line);// считали строку из файла
+		getline(fin, line);// считали строку из файла
+	}
+	fin.close();
+
+	sf::Music music;
+	if (line == "1") {
+		music.openFromFile("music/backgroundMusic.ogg");
+		music.play();
+		music.setLoop(true);
+	}
+	/*
+	//обьект мызыки
+	sf::Music music;
+	music.openFromFile("music/backgroundMusic.ogg");
+	music.play();
+	music.setLoop(true);
+	bool musicStatus = true;
+	bool shootStatus = false;
+	//звук проигрыша
+	sf::SoundBuffer shootBuffer;//создаём буфер для звука
+	shootBuffer.loadFromFile("music/gameOver.ogg");//загружаем в него звук
+	sf::Sound shoot(shootBuffer);//создаем звук и загружаем в него звук из буфера
+	*/
+
 	while (position != -1) {
 		if (position == 0)
 		{
