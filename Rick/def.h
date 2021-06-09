@@ -100,15 +100,23 @@ void printGame(sf::RenderWindow &window, short &position) {//ќтрисовка уровней
 	sf::Sprite bombSprite(bombTexture);
 	
 	std::ifstream fin;
-	std::string line="1";
+	std::string line = "1";
+	std::string musStatus = "1";
+	std::string soundStatus = "1";
+	std::string difficulty = "1";
+
 	fin.open("settings.txt");
-	if (fin.is_open()) {// если файл открыт
+	if (fin.is_open()) {//if the file is open
 		getline(fin, line);// считали строку из файла
 		getline(fin, line);// считали строку из файла
+		getline(fin, musStatus);// считали строку из файла
+		getline(fin, soundStatus);// считали строку из файла
+		getline(fin, difficulty);// считали строку из файла
 	}
 	fin.close();
 	Player hero;
 	hero.start(map.positionHeroX, map.positionHeroY, line);
+	
 
 	sf::View view = window.getView();//объ€вили sfml объект "вид", который и €вл€етс€ камерой
 	
@@ -233,8 +241,8 @@ void printGame(sf::RenderWindow &window, short &position) {//ќтрисовка уровней
 		{
 			for (int j = 0; j < map.TileMapX; j++)
 			{
-				//если убрать true то будут отрисовыватьс€ только по кругу вокруг персонажа
-				if (true || (pow2(i * 45 + 22.5 - hero.heroSprite.getPosition().y - 80.5) + pow2(j * 45 + 22.5 - hero.heroSprite.getPosition().x - 62) <= 250*250)) {
+				//difficulty
+				if (difficulty == "1" || (pow2(i * 45 + 22.5 - hero.heroSprite.getPosition().y - 80.5) + pow2(j * 45 + 22.5 - hero.heroSprite.getPosition().x - 62) <= 250*250)) {
 					fonSprite.setPosition(j * 45, i * 45);//считаем положение элементов карты
 					if (map.TileMapFon[i][j] == '0')  fonSprite.setTextureRect(sf::IntRect(2, 390, 45, 45)); //если встретили символ 0, то рисуем землю
 					else if (map.TileMapFon[i][j] == '1') fonSprite.setTextureRect(sf::IntRect(50, 406, 45, 45));//если встретили символ 1, то рисуем землю
@@ -600,11 +608,16 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 	std::ifstream fin;
 	std::string line = "1";
 	std::string musStatus = "1";
+	std::string soundStatus = "1";
+	std::string difficulty = "1";
+
 	fin.open("settings.txt");
-	if (fin.is_open()) {// если файл открыт
+	if (fin.is_open()) {//if the file is open
 		getline(fin, line);// считали строку из файла
 		getline(fin, line);// считали строку из файла
 		getline(fin, musStatus);// считали строку из файла
+		getline(fin, soundStatus);// считали строку из файла
+		getline(fin, difficulty);// считали строку из файла
 	}
 	fin.close();
 	Player hero;
@@ -705,7 +718,9 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 				std::ofstream out("settings.txt");
 				out << "1.1" << std::endl;
 				out << line << std::endl;
-				out << musStatus;
+				out << musStatus << std::endl;
+				out << soundStatus << std::endl;
+				out << difficulty;
 				out.close();
 			}
 			textM.setCharacterSize(54);//увеличели кегль
@@ -857,7 +872,7 @@ void launch(sf::RenderWindow &window, short &position) {//ќтрисовка окон
 	std::ifstream fin;
 	std::string line = "1";
 	fin.open("settings.txt");
-	if (fin.is_open()) {// если файл открыт
+	if (fin.is_open()) {//if the file is open
 		getline(fin, line);// считали строку из файла
 		getline(fin, line);// считали строку из файла
 		getline(fin, line);// считали строку из файла

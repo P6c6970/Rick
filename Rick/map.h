@@ -2,7 +2,6 @@
 #include "SFML/Graphics.hpp"
 
 #include <fstream>
-#include <iostream>
 class Map {
 public:
 	short TileMapX = 33;
@@ -20,7 +19,7 @@ public:
 		lvl += std::to_string(a);
 		lvl += ".txt";
 		fin.open(lvl);
-		if (!fin.is_open()) {// если файл не открыт
+		if (!fin.is_open()) {//if the file isn't open
 			status = false;
 		}
 		else {
@@ -38,7 +37,7 @@ public:
 			positionHeroX = atoi(line.c_str());
 			getline(fin, line);// считали строку из файла
 			positionHeroY = atoi(line.c_str());
-			//
+
 			for (short i = 0; i < TileMapY; i++)
 			{
 				getline(fin, line);
