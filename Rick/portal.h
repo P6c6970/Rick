@@ -42,7 +42,7 @@ public:
 		return false;
 	}
 
-	void setPortal(sf::String *TileMap, short &x, short &y) {
+	bool setPortal(sf::String *TileMap, short &x, short &y) {
 		x -= this->x / 2.0;
 		y -= this->y / 2.0;
 		if (x > 0 && y > 0) {
@@ -51,6 +51,7 @@ public:
 					position[0][0] = x;
 					position[0][1] = y;
 				}
+				else return 1;
 			}
 			else if (position[1][0] == -32768) {
 				if (position[0][0] != x && position[0][1] != y) {
@@ -59,13 +60,21 @@ public:
 						position[1][1] = y;
 					}
 				}
+				else return 1;
 			}
 			else {
+				
+			}
+		}
+		else {
+			if (position[0][0] != -32768 && position[1][0] != -32768) {
 				position[0][0] = -32768;
 				position[0][1] = -32768;
 				position[1][0] = -32768;
 				position[1][1] = -32768;
 			}
+			else return 1;
 		}
+		return 0;
 	}
 };

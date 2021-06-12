@@ -5,10 +5,12 @@
 #include "map.h"//карта
 #include "hero.h"//игрок и портал
 
+#include <iostream>
 enum Color {
 	POISONOUS_GREEN,
 	ORANGE,
-	SKY_BLUE
+	SKY_BLUE,
+	RUBY
 };
 
 double pow2(double temp) {
@@ -39,6 +41,11 @@ void setColor(sf::Color &color, Color temp) {//Задать цвет
 		color.g = 191;
 		color.b = 255;
 		break;
+	case RUBY:
+		color.r = 202;
+		color.g = 1;
+		color.b = 71;
+		break;
 	default:
 		color.r = 255;
 		color.g = 255;
@@ -63,7 +70,7 @@ void setView(sf::RenderWindow &window, sf::View &view, float x, float y, short &
 	view.setCenter(x, y);
 }
 
-void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
+void printGame(sf::RenderWindow &window, short &position, sf::Music &music) {//Отрисовка уровней
 	sf::Color color;
 	//Текст и шрифт
 	sf::Font font;//шрифт 
@@ -84,8 +91,6 @@ void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
 	map.load(status, position - 3);
 	if (status == false) position = 3;
 	startFon(window);//октрываем спрайт фона
-
-	
 
 	sf::Texture stoneTexture;
 	if (!stoneTexture.loadFromFile("images/stoneImage.png")) {//если файла нет рисуем квадрат
@@ -117,10 +122,14 @@ void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
 	Player hero;
 	hero.start(map.positionHeroX, map.positionHeroY, line);
 	
-
-	sf::View view = window.getView();//объявили sfml объект "вид", который и является камерой
+	sf::SoundBuffer gameOverBuff;//создаём буфер для звука
+	gameOverBuff.loadFromFile("music/gameOver.ogg");//загружаем в него звук
+	sf::Sound gameOverS(gameOverBuff);//создаем звук и загружаем в него звук из буфера
+	sf::SoundBuffer mistakeBuff;//создаём буфер для звука
+	mistakeBuff.loadFromFile("music/mistake.ogg");//загружаем в него звук
+	sf::Sound mistakeS(mistakeBuff);//создаем звук и загружаем в него звук из буфера
 	
-
+	sf::View view = window.getView();//объявили sfml объект "вид", который и является камерой
 	//следим за игроком, передавая его координаты камере.
 	setView(window, view, hero.heroSprite.getPosition().x + 62, hero.heroSprite.getPosition().y + 80.5, map.TileMapX, map.TileMapY);
 	textM.setPosition(view.getCenter().x - 339.5841, view.getCenter().y + 206);//привязываем текст к камере
@@ -179,7 +188,11 @@ void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
 		}
 
 		if (posPortalX != -32768) {
-			hero.portal.setPortal(map.TileMap, posPortalX, posPortalY);
+			if (hero.portal.setPortal(map.TileMap, posPortalX, posPortalY)) {
+				if (soundStatus == "1") {
+					mistakeS.play();
+				}
+			}
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
@@ -187,22 +200,38 @@ void printGame(sf::RenderWindow &window, short &position) {//Отрисовка уровней
 			//0 верх 1 низ 2 лево 3 право
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) { //идём влево
 				hero.updateFrame(1, (short)hero.CurrentFrame);
-				hero.addPosition(map, -0.1*time, 0);
+				if (hero.addPosition(map, -0.1*time, 0)) {
+					if (soundStatus == "1") {
+						gameOverS.play();
+					}
+				}
 				hero.checkPortal(map, 2);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) { //идём вправо
 				hero.updateFrame(2, (short)hero.CurrentFrame);
-				hero.addPosition(map, 0.1*time, 0);
+				if (hero.addPosition(map, 0.1*time, 0)) {
+					if (soundStatus == "1") {
+						gameOverS.play();
+					}
+				}
 				hero.checkPortal(map, 3);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) { //идём вверх
 				hero.updateFrame(3, (short)hero.CurrentFrame);
-				hero.addPosition(map, 0, -0.1*time);
+				if (hero.addPosition(map, 0, -0.1*time)) {
+					if (soundStatus == "1") {
+						gameOverS.play();
+					}
+				}
 				hero.checkPortal(map, 0);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {//идём вниз
 				hero.updateFrame(0, (short)hero.CurrentFrame);
-				hero.addPosition(map, 0, 0.1*time);
+				if (hero.addPosition(map, 0, 0.1*time)) {
+					if (soundStatus == "1") {
+						gameOverS.play();
+					}
+				}
 				hero.checkPortal(map, 1);
 			}
 			 
@@ -573,9 +602,8 @@ void printError(sf::RenderWindow &window, short &position) {//Отрисовка недодела
 	}
 }
 
-void printSettings(sf::RenderWindow &window, short &position) {//show settings
+void printSettings(sf::RenderWindow &window, short &position, sf::Music &music) {//show settings
 	sf::Color color;
-
 	//создание изображения
 	sf::Texture fonTexture;
 	if (!fonTexture.loadFromFile("images/settingsImage.jpg")) {
@@ -587,12 +615,19 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 	sf::Font font;//шрифт 
 	font.loadFromFile("font.ttf");//передаем нашему шрифту файл шрифта
 
-	sf::Text textM;
-	textM = sf::Text("Back", font, 50);
-	//textM.setStyle(sf::Text::Bold);
-	setColor(color, POISONOUS_GREEN);
-	textM.setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
-	textM.setPosition(98.9516, 590);//задаем позицию текста
+	sf::Text textM[4];
+	for (int i = 0; i < 4; i++)
+	{
+		textM[i] = sf::Text("", font, 50);
+	}
+	textM[0].setString("Music");//задает строку тексту
+	textM[0].setPosition(650, 250);//задаем позицию текста 
+	textM[1].setString("Sounds");//задает строку тексту
+	textM[1].setPosition(650, 350);//задаем позицию текста
+	textM[2].setString("Difficulty");//задает строку тексту
+	textM[2].setPosition(650, 450);//задаем позицию текста
+	textM[3].setString("Back");//задает строку тексту
+	textM[3].setPosition(98.9516, 590);//задаем позицию текста
 
 	bool status = true;
 
@@ -620,6 +655,19 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 		getline(fin, difficulty);// считали строку из файла
 	}
 	fin.close();
+
+	if (musStatus=="1") setColor(color, POISONOUS_GREEN);
+	else setColor(color, RUBY);
+	textM[0].setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
+	if (soundStatus == "1") setColor(color, POISONOUS_GREEN);
+	else setColor(color, RUBY);
+	textM[1].setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
+	if (difficulty == "0") setColor(color, POISONOUS_GREEN);
+	else setColor(color, RUBY);
+	textM[2].setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
+	setColor(color, POISONOUS_GREEN);
+	textM[3].setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
+
 	Player hero;
 	hero.start(100, 190, line);
 
@@ -644,10 +692,27 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 		window.clear();//отчисщаем экран
 
 		if (selectedText != -1) {//если какой-то текст был выделен
-			setColor(color, POISONOUS_GREEN);
-			textM.setFillColor(color);//покрасили текст
-			textM.setCharacterSize(50);//вернули кегель
-			textM.setPosition(textM.getPosition().x + 4, textM.getPosition().y);//вернули начальную позицию
+			switch (selectedText)
+			{
+			case 0:
+				if (musStatus == "1") setColor(color, POISONOUS_GREEN);
+				else setColor(color, RUBY);
+				break;
+			case 1:
+				if (soundStatus == "1") setColor(color, POISONOUS_GREEN);
+				else setColor(color, RUBY);
+				break;
+			case 2:
+				if (difficulty == "0") setColor(color, POISONOUS_GREEN);
+				else setColor(color, RUBY);
+				break;
+			case 3:
+				setColor(color, POISONOUS_GREEN);
+				break;
+			}
+			textM[selectedText].setFillColor(color);//покрасили текст
+			textM[selectedText].setCharacterSize(50);//вернули кегель
+			textM[selectedText].setPosition(textM[selectedText].getPosition().x + 4, textM[selectedText].getPosition().y);//вернули начальную позицию
 
 		}
 
@@ -660,10 +725,35 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 			if (event.type == sf::Event::Closed) status = false;
 
 			sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));//положение мыши
-			if (textM.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на тексте
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressedText = 1;//если нажата левая кнопка выполняем
-				selectedText = 1;//выделяем текст
+
+			for (int i = 0; i < 4; i++)
+			{
+				if (textM[i].getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на тексте
+					selectedText = i;//выделяем текст
+					if (event.type == event.MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+						pressedText = i;//если нажата левая кнопка выполняем
+						if (i == 0) {//musStatus
+							if (musStatus == "1") {
+								musStatus = "0";
+								music.pause();
+							}
+							else {
+								musStatus = "1";
+								music.play();
+							}
+						}
+						else if (i == 1) {//soundStatus
+							if (soundStatus == "1") soundStatus = "0";
+							else soundStatus = "1";
+						}
+						else if (i == 2) {//difficulty
+							if (difficulty == "1") difficulty = "0";
+							else difficulty = "1";
+						}
+					}
+				}
 			}
+
 			if (event.type == event.MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
 				if (arrow1Sprite.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на стрелке
 					int number = atoi(line.c_str());
@@ -672,7 +762,7 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 					line = std::to_string(number);
 					hero.start(100, 190, line);
 				}
-				if (arrow2Sprite.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на стрелке
+				else if (arrow2Sprite.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на стрелке
 					int number = atoi(line.c_str());
 					number++;
 					if (number > 5) number = 1;
@@ -686,7 +776,7 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
 			hero.updateCurrentFrame(0.005*time);
-			//0 верх 1 низ 2 лево 3 право
+			//0 up 1 down 2 left 3 right
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) { //идём влево
 				hero.updateFrame(1, (short)hero.CurrentFrame);
 			}
@@ -707,31 +797,38 @@ void printSettings(sf::RenderWindow &window, short &position) {//show settings
 		}
 
 		if (selectedText != -1) {//если на что-то наведено
+			setColor(color, ORANGE);
 			if (pressedText == -1) {
-				setColor(color, ORANGE);
-				textM.setFillColor(color);//покрасили текст
+				textM[selectedText].setFillColor(color);//покрасили текст
 			}
-			else {//если на что-то нажато
-				status = false;
-				position = 0;
-				textM.setFillColor(sf::Color::Black);
-				std::ofstream out("settings.txt");
-				out << "1.1" << std::endl;
-				out << line << std::endl;
-				out << musStatus << std::endl;
-				out << soundStatus << std::endl;
-				out << difficulty;
-				out.close();
+			else {
+				textM[selectedText].setFillColor(sf::Color::Black);//покрасили текст
+				if (pressedText == 3) {//Если нажато выход
+					status = false;
+					position = 0;
+					textM[selectedText].setFillColor(sf::Color::Black);
+					std::ofstream out("settings.txt");
+					out << "1.1" << std::endl;
+					out << line << std::endl;
+					out << musStatus << std::endl;
+					out << soundStatus << std::endl;
+					out << difficulty;
+					out.close();
+				}
 			}
-			textM.setCharacterSize(54);//увеличели кегль
-			textM.setPosition(textM.getPosition().x - 4, textM.getPosition().y);//сдвигаем чуть-чуть влево чтобы текст увеличился из центра
+
+			textM[selectedText].setCharacterSize(54);//увеличели кегль
+			textM[selectedText].setPosition(textM[selectedText].getPosition().x - 4, textM[selectedText].getPosition().y);//сдвигаем чуть-чуть влево чтобы текст увеличился из центра
 		}
 
 		window.draw(fon);//отрисовываем на экране фон
 		window.draw(arrow1Sprite);
 		window.draw(arrow2Sprite);
 		window.draw(hero.heroSprite);
-		window.draw(textM);
+		for (int i = 0; i < 4; i++)
+		{
+			window.draw(textM[i]);
+		}
 
 		cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
 		window.draw(cursor);
@@ -754,7 +851,7 @@ void printMenu(sf::RenderWindow &window, short &position) {//Отрисовка меню
 	//Текст и шрифт
 	sf::Font font;//шрифт 
 	font.loadFromFile("font.ttf");//передаем нашему шрифту файл шрифта
-	sf::Text textM[5];
+	sf::Text textM[4];
 	for (int i = 0; i < 4; i++)
 	{
 		textM[i] = sf::Text("", font, 50);
@@ -808,7 +905,7 @@ void printMenu(sf::RenderWindow &window, short &position) {//Отрисовка меню
 			for (int i = 0; i < 4; i++)
 			{
 				if (textM[i].getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на тексте
-					if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressedText = i;//если нажата левая кнопка выполняем
+					if (event.type == event.MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) pressedText = i;//если нажата левая кнопка выполняем
 
 					selectedText = i;//выделяем текст
 				}
@@ -880,24 +977,12 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 	fin.close();
 
 	sf::Music music;
-	if (line == "1") {
-		music.openFromFile("music/backgroundMusic.ogg");
-		music.play();
-		music.setLoop(true);
-	}
-	/*
-	//обьект мызыки
-	sf::Music music;
 	music.openFromFile("music/backgroundMusic.ogg");
-	music.play();
 	music.setLoop(true);
-	bool musicStatus = true;
-	bool shootStatus = false;
-	//звук проигрыша
-	sf::SoundBuffer shootBuffer;//создаём буфер для звука
-	shootBuffer.loadFromFile("music/gameOver.ogg");//загружаем в него звук
-	sf::Sound shoot(shootBuffer);//создаем звук и загружаем в него звук из буфера
-	*/
+	if (line == "1") {
+		music.play();
+		music.setVolume(50);
+	}
 
 	while (position != -1) {
 		if (position == 0)
@@ -914,7 +999,7 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 		}
 		else if (position == 2)
 		{
-			printSettings(window, position);
+			printSettings(window, position, music);
 		}
 		else if (position == 3)
 		{
@@ -922,7 +1007,7 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 		}
 		else if (position > 3)
 		{
-			printGame(window, position);
+			printGame(window, position, music);
 		}
 		if (position != -1) {
 			window.clear();

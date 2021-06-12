@@ -74,6 +74,7 @@ public:
 						portal.position[1][0] = -32768;
 						portal.position[1][1] = -32768;
 						setPosition(startX, startY);
+						return 2;
 					}
 				}
 				else return 1;
@@ -82,10 +83,13 @@ public:
 		return 0;
 	}
 
-	void addPosition(Map &map, float x, float y) {
-		if (check(map, x, y) == 0) {
+	bool addPosition(Map &map, float x, float y) {
+		int temp = check(map, x, y);
+		if (temp == 0) {
 			heroSprite.move(x, y);
 		}
+		else if (temp == 2) return 1;
+		return 0;
 	}
 
 	//a.y < b.y1 || a.y1 > b.y || a.x1 < b.x || a.x > b.x1
