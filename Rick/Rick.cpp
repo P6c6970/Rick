@@ -1,6 +1,6 @@
 ﻿//#include <Windows.h>//для сворачивания окна
 //#include <iostream>
-#include "def.h"
+#include "print.h"
 
 int main()
 {

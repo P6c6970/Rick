@@ -1,7 +1,6 @@
 #pragma once
-#include "SFML/Graphics.hpp"
-
 #include <fstream>
+#include "def.h"
 class Map {
 public:
 	short TileMapX = 33;
@@ -10,9 +9,13 @@ public:
 	sf::String *TileMapFon;
 	sf::String *TileMap;
 
+	sf::Texture fonTexture;
+	sf::Sprite fonSprite;
+
 	short positionHeroX;
 	short positionHeroY;
 	void load(bool &status, short a) {
+		createTexture(fonTexture, fonSprite, "images/fonImage.png", 966, 520);
 		std::string line;
 		std::ifstream fin;
 		std::string lvl = "maps/lvl ";
@@ -52,10 +55,3 @@ public:
 		fin.close(); // закрываем файл
 	}
 };
-
-
-sf::Texture fonTexture;
-sf::Sprite fonSprite(fonTexture);
-void startFon(sf::RenderWindow &window) {
-	fonTexture.loadFromFile("images/fonImage.png");//1366 768
-}

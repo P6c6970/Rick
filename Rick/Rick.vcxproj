@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="def.h" />
+    <ClInclude Include="print.h" />
     <ClInclude Include="portal.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="hero.h" />

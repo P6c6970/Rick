@@ -59,22 +59,18 @@ public:
 						position[1][0] = x;
 						position[1][1] = y;
 					}
+					else return 1;
 				}
 				else return 1;
 			}
 			else {
-				
-			}
-		}
-		else {
-			if (position[0][0] != -32768 && position[1][0] != -32768) {
 				position[0][0] = -32768;
 				position[0][1] = -32768;
 				position[1][0] = -32768;
 				position[1][1] = -32768;
 			}
-			else return 1;
 		}
+		else return 1;
 		return 0;
 	}
 };

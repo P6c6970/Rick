@@ -1,6 +1,5 @@
 #pragma once
-#include "SFML/Graphics.hpp"
-
+#include "def.h"
 #include "portal.h"
 #include "map.h"
 class Player {
@@ -16,11 +15,7 @@ public:
 	Portal portal;
 	
 	void start(short px, short py, std::string line) {
-		line = "images/hero/spriteHero" + line + ".png";
-		if (!heroTexture.loadFromFile(line)) {//если файла нет рисуем квадрат
-			heroTexture.create(515, 496);
-		}
-		heroSprite.setTexture(heroTexture);
+		createTexture(heroTexture, heroSprite, ("images/hero/spriteHero" + line + ".png").c_str(), 515, 496);
 		heroSprite.setTextureRect(sf::IntRect(0, 0, x, y));//получили нужный нам прямоугольник
 		startX = px;
 		startY = py;
