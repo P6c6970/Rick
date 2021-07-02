@@ -1,7 +1,7 @@
 #pragma once
 #include "SFML/Graphics.hpp"
 #include "SFML/Audio.hpp"
-
+#include <fstream>
 #define pow2(x) ((x)*(x))
 
 enum Color {
@@ -9,6 +9,12 @@ enum Color {
 	ORANGE,
 	SKY_BLUE,
 	RUBY
+};
+
+enum Window {
+	ENDGAME,
+	ERROR,
+	AUTHOR
 };
 
 void setColor(sf::Color &color, int &r, int &g, int &b) {//Задать цвет
@@ -75,4 +81,21 @@ void createTexture(sf::Texture &texture, sf::Sprite &sprite, const char* adress,
 		texture.create(x, y);
 	}
 	sprite.setTexture(texture);
+}
+
+void readSettings(std::string &line, std::string &musStatus, std::string &soundStatus, std::string &difficulty) {
+	line = "1";
+	musStatus = "1";
+	soundStatus = "1";
+	difficulty = "1";
+	std::ifstream fin;
+	fin.open("settings.txt");
+	if (fin.is_open()) {//if the file is open
+		getline(fin, line);// считали строку из файла
+		getline(fin, line);// считали строку из файла
+		getline(fin, musStatus);// считали строку из файла
+		getline(fin, soundStatus);// считали строку из файла
+		getline(fin, difficulty);// считали строку из файла
+	}
+	fin.close();
 }

@@ -38,21 +38,9 @@ void printGame(sf::RenderWindow &window, short &position, sf::Sprite &cursor, sf
 	sf::Sprite lazSprite;
 	createTexture(lazTexture, lazSprite, "images/lazerImage.png", 90, 45);
 
-	std::ifstream fin;
-	std::string line = "1";
-	std::string musStatus = "1";
-	std::string soundStatus = "1";
-	std::string difficulty = "1";
+	std::string line, musStatus, soundStatus, difficulty;
+	readSettings(line, musStatus, soundStatus, difficulty);
 
-	fin.open("settings.txt");
-	if (fin.is_open()) {//if the file is open
-		getline(fin, line);// считали строку из файла
-		getline(fin, line);// считали строку из файла
-		getline(fin, musStatus);// считали строку из файла
-		getline(fin, soundStatus);// считали строку из файла
-		getline(fin, difficulty);// считали строку из файла
-	}
-	fin.close();
 	Player hero;
 	hero.start(map.positionHeroX, map.positionHeroY, line);
 	
@@ -263,169 +251,27 @@ void printGame(sf::RenderWindow &window, short &position, sf::Sprite &cursor, sf
 	window.setView(fixed);
 }
 
-void printAuthor(sf::RenderWindow &window, short &position, sf::Sprite &cursor) {//Отрисовка об авторе
+void printNormalWindow(sf::RenderWindow &window, short &position, sf::Sprite &cursor, short typeWindow) {//Отрисовка конца игры, об аторе и ошибки
 	sf::Color color;
 
 	sf::Texture fonTexture;
 	sf::Sprite fon;
-	createTexture(fonTexture, fon, "images/authorImage.jpg", 1024, 768);
-
-	//Текст и шрифт
-	sf::Font font;//шрифт 
-	font.loadFromFile("font.ttf");//передаем нашему шрифту файл шрифта
-
-	sf::Text textM;
-	textM = sf::Text("Back", font, 50);
-	//textM.setStyle(sf::Text::Bold);
-	setColor(color, POISONOUS_GREEN);
-	textM.setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
-	textM.setPosition(98.9516, 590);//задаем позицию текста
-
-	bool status = true;
-
-	short selectedText = -1;
-	short pressedText = -1;
-
-	sf::View fixed = window.getView(); // Create a fixed view
-
-	while (status)
+	switch (typeWindow)
 	{
-		window.clear();//отчисщаем экран
-
-		if (selectedText != -1) {//если какой-то текст был выделен
-			setColor(color, POISONOUS_GREEN);
-			textM.setFillColor(color);//покрасили текст
-			textM.setCharacterSize(50);//вернули кегель
-			textM.setPosition(textM.getPosition().x + 4, textM.getPosition().y);//вернули начальную позицию
-
-		}
-
-
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			selectedText = -1;
-			pressedText = -1;
-			if (event.type == sf::Event::Closed) status = false;
-
-			sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));//положение мыши
-			if (textM.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на тексте
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressedText = 1;//если нажата левая кнопка выполняем
-				selectedText = 1;//выделяем текст
-			}
-		}
-
-		if (selectedText != -1) {//если на что-то наведено
-			if (pressedText == -1) {
-				setColor(color, ORANGE);
-				textM.setFillColor(color);//покрасили текст
-			}
-			else {//если на что-то нажато
-				status = false;
-				position = 0;
-				textM.setFillColor(sf::Color::Black);
-			}
-			textM.setCharacterSize(54);//увеличели кегль
-			textM.setPosition(textM.getPosition().x - 4, textM.getPosition().y);//сдвигаем чуть-чуть влево чтобы текст увеличился из центра
-		}
-
-		window.draw(fon);//отрисовываем на экране тексты
-
-		window.draw(textM);
-
-		cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
-		window.draw(cursor);
-		window.setView(fixed);
-
-		window.display();//обновить экран
+	case ENDGAME:
+		createTexture(fonTexture, fon, "images/endGameImage.jpg", 1024, 768);
+		break;
+	case ERROR:
+		createTexture(fonTexture, fon, "images/errorImage.jpg", 1024, 768);
+		break;
+	case AUTHOR:
+		createTexture(fonTexture, fon, "images/authorImage.jpg", 1024, 768);
+		break;
+	default:
+		createTexture(fonTexture, fon, "images/errorImage.jpg", 1024, 768);
+		break;
 	}
-}
-
-void printEndGame(sf::RenderWindow &window, short &position, sf::Sprite &cursor) {//Отрисовка конца игры
-	sf::Color color;
-
-	sf::Texture fonTexture;
-	sf::Sprite fon;
-	createTexture(fonTexture, fon, "images/endGameImage.jpg", 1024, 768);
-
-	//Текст и шрифт
-	sf::Font font;//шрифт 
-	font.loadFromFile("font.ttf");//передаем нашему шрифту файл шрифта
-
-	sf::Text textM;
-	textM = sf::Text("Back", font, 50);
-	//textM.setStyle(sf::Text::Bold);
-	setColor(color, POISONOUS_GREEN);
-	textM.setFillColor(color);//покрасили текст. если убрать эту строку, то по умолчанию он белый
-	textM.setPosition(98.9516, 590);//задаем позицию текста
-
-	bool status = true;
-
-	short selectedText = -1;
-	short pressedText = -1;
-
-	sf::View fixed = window.getView(); // Create a fixed view
-
-	while (status)
-	{
-		window.clear();//отчисщаем экран
-
-		if (selectedText != -1) {//если какой-то текст был выделен
-			setColor(color, POISONOUS_GREEN);
-			textM.setFillColor(color);//покрасили текст
-			textM.setCharacterSize(50);//вернули кегель
-			textM.setPosition(textM.getPosition().x + 4, textM.getPosition().y);//вернули начальную позицию
-
-		}
-
-
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			selectedText = -1;
-			pressedText = -1;
-			if (event.type == sf::Event::Closed) status = false;
-
-			sf::Vector2f pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));//положение мыши
-			if (textM.getGlobalBounds().contains(pos.x, pos.y)) {//если мышь на тексте
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) pressedText = 1;//если нажата левая кнопка выполняем
-				selectedText = 1;//выделяем текст
-			}
-		}
-
-		if (selectedText != -1) {//если на что-то наведено
-			if (pressedText == -1) {
-				setColor(color, ORANGE);
-				textM.setFillColor(color);//покрасили текст
-			}
-			else {//если на что-то нажато
-				status = false;
-				position = 0;
-				textM.setFillColor(sf::Color::Black);
-			}
-			textM.setCharacterSize(54);//увеличели кегль
-			textM.setPosition(textM.getPosition().x - 4, textM.getPosition().y);//сдвигаем чуть-чуть влево чтобы текст увеличился из центра
-		}
-
-		window.draw(fon);//отрисовываем на экране тексты
-
-		window.draw(textM);
-
-		cursor.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
-		window.draw(cursor);
-		window.setView(fixed);
-
-		window.display();//обновить экран
-	}
-}
-
-void printError(sf::RenderWindow &window, short &position, sf::Sprite &cursor) {//Отрисовка недоделанного
-	sf::Color color;
-
-	sf::Texture fonTexture;
-	sf::Sprite fon;
-	createTexture(fonTexture, fon, "images/errorImage.jpg", 1024, 768);
-
+	
 	//Текст и шрифт
 	sf::Font font;//шрифт 
 	font.loadFromFile("font.ttf");//передаем нашему шрифту файл шрифта
@@ -528,21 +374,8 @@ void printSettings(sf::RenderWindow &window, short &position, sf::Sprite &cursor
 
 	sf::View fixed = window.getView(); // Create a fixed view
 
-	std::ifstream fin;
-	std::string line = "1";
-	std::string musStatus = "1";
-	std::string soundStatus = "1";
-	std::string difficulty = "1";
-
-	fin.open("settings.txt");
-	if (fin.is_open()) {//if the file is open
-		getline(fin, line);// считали строку из файла
-		getline(fin, line);// считали строку из файла
-		getline(fin, musStatus);// считали строку из файла
-		getline(fin, soundStatus);// считали строку из файла
-		getline(fin, difficulty);// считали строку из файла
-	}
-	fin.close();
+	std::string line, musStatus, soundStatus, difficulty;
+	readSettings(line, musStatus, soundStatus, difficulty);
 
 	if (musStatus=="1") setColor(color, POISONOUS_GREEN);
 	else setColor(color, RUBY);
@@ -849,20 +682,13 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 	sf::Sprite cursor;
 	createTexture(cursorTexture, cursor, "images/cursorImage.png", 32, 32);
 
-	std::ifstream fin;
-	std::string line = "1";
-	fin.open("settings.txt");
-	if (fin.is_open()) {//if the file is open
-		getline(fin, line);// считали строку из файла
-		getline(fin, line);// считали строку из файла
-		getline(fin, line);// считали строку из файла
-	}
-	fin.close();
+	std::string line, musStatus, soundStatus, difficulty;
+	readSettings(line, musStatus, soundStatus, difficulty);
 
 	sf::Music music;
 	music.openFromFile("music/backgroundMusic.ogg");
 	music.setLoop(true);
-	if (line == "1") {
+	if (musStatus == "1") {
 		music.play();
 		music.setVolume(50);
 	}
@@ -874,11 +700,11 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 		}
 		else if (position == 1)
 		{
-			printAuthor(window, position, cursor);
+			printNormalWindow(window, position, cursor, AUTHOR);
 		}
 		else if (position == -2)
 		{
-			printError(window, position, cursor);
+			printNormalWindow(window, position, cursor, ERROR);
 		}
 		else if (position == 2)
 		{
@@ -886,7 +712,7 @@ void launch(sf::RenderWindow &window, short &position) {//Отрисовка окон
 		}
 		else if (position == 3)
 		{
-			printEndGame(window, position, cursor);
+			printNormalWindow(window, position, cursor, ENDGAME);
 		}
 		else if (position > 3)
 		{

@@ -1,5 +1,4 @@
 #pragma once
-#include <fstream>
 #include "def.h"
 class Map {
 public:
